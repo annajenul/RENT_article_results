@@ -26,8 +26,8 @@ classification_scores <- function(train_data, train_labels,
   py_train_sc = sc$fit_transform(py_train)
   py_test_sc = sc$transform(py_test)
   
-  #Logreg model
-  model = skl_lr$LogisticRegression(penalty="none",max_iter=8000, solver="saga")#, random_state= np$random$RandomState(0)) 
+  # logistic regression model
+  model = skl_lr$LogisticRegression(penalty="none",max_iter=8000, solver="saga")
   model$fit(py_train_sc, py_train_labels)
   
   # predict
@@ -61,7 +61,7 @@ regression_scores <- function(train_data, train_labels,
   py_test_sc = sc$transform(py_test)
   
   
-  # Linear Model
+  # linear Model
   model = skl_lr$LinearRegression() 
   model$fit(py_train_sc, py_train_labels)
   

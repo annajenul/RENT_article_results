@@ -6,25 +6,29 @@ library(caret)
 
 stabsel_gridsearch <- function(train_data, train_labels, B=100){
   set.seed(0)
+  # define grid search values
   PFER_values = seq(0.05,0.95,0.05)
   cutoff_values = seq(0.6,0.9,0.05)
   folds <- createFolds(train_labels, k=5, list=TRUE)
   
-  
+  # define matrix to store average performance values over 5 folds
   mcc_average_scores = matrix(nrow=length(PFER_values), ncol = length(cutoff_values))
-  
   rownames(mcc_average_scores)=PFER_values
   colnames(mcc_average_scores)=cutoff_values
+   
+  # loop over hyperparameters
   for (i in 1:length(PFER_values)) {
     for (j in 1:length(cutoff_values)) {
       cat("pfer:",PFER_values[i], "cutoff:", cutoff_values[j], "\n")
+      
+      # store performance for each fold
       average_performance = c()
       for (fold in folds) {
-
+        # apply stabsel on standardized data
         stab.glmnet = stabsel(x = apply(train_data[-fold,], 2, function(x){if(length(unique(x))>1){return(scale(x))} else{return(x)}}), 
                               y = train_labels[-fold],
                               fitfun = glmnet.lasso,
-                              args.fitfun = list(family = "binomial"),
+                              args.fitfun = list(family = "binomial"), # binomial model for classification
                               cutoff = cutoff_values[j],
                               PFER = PFER_values[i],
                               B = B,
@@ -37,8 +41,6 @@ stabsel_gridsearch <- function(train_data, train_labels, B=100){
           average_performance = c(average_performance, NA)
         }
         else{
-          
-          print("here")
           # standardize data
           mean_train = apply(train_data[-fold,], 2, mean)
           std_train = apply(train_data[-fold,], 2, sd)
@@ -82,6 +84,7 @@ stabsel_gridsearch <- function(train_data, train_labels, B=100){
   
   print(mcc_average_scores)
   
+  # find hyperparameters leading to the best MCC values;
   params = which(mcc_average_scores == max(mcc_average_scores, na.rm=TRUE), arr.ind = TRUE)
   pfer = PFER_values[min(params[,1])]
   cutoff = cutoff_values[max(params[params[,1]==min(params[,1])][-1])]
