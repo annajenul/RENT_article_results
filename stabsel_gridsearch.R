@@ -4,7 +4,7 @@ library(mltools)
 library(caret)
 
 
-stabsel_gridsearch <- function(train_data, train_labels, B=100){
+stabsel_gridsearch <- function(train_data, train_labels, B=100){ # we set B=100 equal to the number of ensemble models in RENT
   set.seed(0)
   # define grid search values
   PFER_values = seq(0.05,0.95,0.05)
